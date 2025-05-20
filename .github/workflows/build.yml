@@ -41,75 +41,54 @@ jobs:
           git fetch pipa $DEFAULT_BRANCH
           git reset --hard pipa/$DEFAULT_BRANCH
 
-      - name: Build the xiaomi-pipa without DE
+      - name: Build the xiaomi-pipa with Phosh and FDE
         run: |
            cp xiaomi-pipa.cfg ~/.config/pmbootstrap_v3.cfg
-           pmbootstrap install --password 147147
+           pmbootstrap install --password 147147 --fde --add postmarketos-ui-phosh
            pmbootstrap export
            cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-pipa.img
-           cp /tmp/postmarketOS-export/xiaomi-pipa.img out/rootfs-xiaomi-pipa-none.img
+           cp /tmp/postmarketOS-export/xiaomi-pipa.img out/rootfs-xiaomi-pipa-phosh-fde.img
+        env:
+          PMB_FDE_PASSWORD: ${{ secrets.PMB_FDE_PASSWORD }}
 
       - name: Breakpoint if tests failed for xiaomi-pipa without DE
         if: failure()
         uses: namespacelabs/breakpoint-action@v0
         with:
           duration: 30m
-          authorized-users: nixxizlab
+          authorized-users: milikhin
       
-      - name: Upload artifacts xiaomi-pipa without DE
+      - name: Upload artifacts xiaomi-pipa with FDE and Phosh
         uses: actions/upload-artifact@v4
         with:
-           name: xiaomi-pipa-none
+           name: xiaomi-pipa-phosh-fde
            path: out/*.img*
            retention-days: 7
 
-      - name: Build the xiaomi-pipa with KDE Plasma Desktop
+      - name: Build the xiaomi-pipa with Phosh
         run: |
            yes | pmbootstrap zap
            rm -r out/*
-           pmbootstrap install --password 147147 --add postmarketos-ui-plasma-desktop
+           pmbootstrap install --password 147147 --add postmarketos-ui-phosh
            cat /home/runner/.local/var/pmbootstrap/log.txt
            pmbootstrap export
            cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-pipa.img
-           cp /tmp/postmarketOS-export/xiaomi-pipa.img out/rootfs-xiaomi-pipa-plasma.img
+           cp /tmp/postmarketOS-export/xiaomi-pipa.img out/rootfs-xiaomi-pipa-phosh.img
 
-      - name: Breakpoint if tests failed for xiaomi-pipa with KDE Plasma Desktop
+      - name: Breakpoint if tests failed for xiaomi-pipa with Phosh
         if: failure()
         uses: namespacelabs/breakpoint-action@v0
         with:
           duration: 30m
-          authorized-users: nixxizlab
+          authorized-users: milikhin
       
-      - name: Upload artifacts xiaomi-pipa with KDE Plasma Desktop
+      - name: Upload artifacts xiaomi-pipa with Phosh
         uses: actions/upload-artifact@v4
         with:
-           name: xiaomi-pipa-plasma
+           name: xiaomi-pipa-phosh
            path: out/*.img*
            retention-days: 7
-            
-      - name: Build the xiaomi-pipa with GNOME
-        run: |
-           yes | pmbootstrap zap
-           rm -r out/*
-           pmbootstrap install --password 147147 --add postmarketos-ui-gnome
-           pmbootstrap export
-           cp /tmp/postmarketOS-export/boot.img out/boot-xiaomi-pipa.img
-           cp /tmp/postmarketOS-export/xiaomi-pipa.img out/rootfs-xiaomi-pipa-gnome.img
 
-      - name: Breakpoint if tests failed for xiaomi-pipa with GNOME
-        if: failure()
-        uses: namespacelabs/breakpoint-action@v0
-        with:
-          duration: 30m
-          authorized-users: nixxizlab
-            
-      - name: Upload artifacts xiaomi-pipa with GNOME
-        uses: actions/upload-artifact@v4
-        with:
-           name: xiaomi-pipa-gnome
-           path: out/*.img*
-           retention-days: 7
-           
       - name: Copy xiaomi-pipa kernel
         run: |
            rm -r out/*
